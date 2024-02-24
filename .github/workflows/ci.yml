@@ -39,7 +39,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
-          path: sourcemod
+          path: source2mod
 
       - name: Cache dependencies
         uses: actions/cache@v3
@@ -67,9 +67,9 @@ jobs:
           mkdir -p ${{ env.DEPENDENCIES_FOLDER }}
           cd ${{ env.DEPENDENCIES_FOLDER }}
 
-          # Satisfy checkout-deps requirement for a "sourcemod" folder.
-          mkdir -p sourcemod
-          ../sourcemod/tools/checkout-deps.sh -s ${{ join(fromJSON(env.SDKS)) }}
+          # Satisfy checkout-deps requirement for a "source2mod" folder.
+          mkdir -p source2mod
+          ../source2mod/tools/checkout-deps.sh -s ${{ join(fromJSON(env.SDKS)) }}
 
       - name: Install Linux dependencies
         if: startsWith(runner.os, 'Linux')
@@ -90,9 +90,15 @@ jobs:
           ${{ matrix.compiler_cxx }} --version
 
       - name: Build
-        working-directory: sourcemod
+        working-directory: source2mod
         run: |
           mkdir build
           cd build
           python ../configure.py --enable-optimize --sdks=${{ join(fromJSON(env.SDKS)) }} --targets=${{ env.ARCH }} --mms-path=${{ env.DEPENDENCIES_ROOT }}/mmsource-${{ env.MMSOURCE_VERSION }} --hl2sdk-root=${{ env.DEPENDENCIES_ROOT }} --mysql-path=${{ env.DEPENDENCIES_ROOT }}/mysql-${{ env.MYSQL_VERSION }} --mysql64-path=${{ env.DEPENDENCIES_ROOT }}/mysql-${{ env.MYSQL_VERSION }}-x86_64
           ambuild
+          
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: source2mod-${{ matrix.os_short }}
+          path: source2mod/build/package
