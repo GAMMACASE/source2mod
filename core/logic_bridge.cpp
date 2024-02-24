@@ -715,7 +715,11 @@ void CoreProviderImpl::InitializeBridge()
 	::serverGlobals.universalTime = g_pUniversalTime;
 #endif
 	::serverGlobals.frametime = &gpGlobals->frametime;
+#ifndef SOURCE2_WIP
 	::serverGlobals.interval_per_tick = &gpGlobals->interval_per_tick;
+#else
+	::serverGlobals.interval_per_tick = (1.0f / 64.0f);
+#endif
 
 	this->listeners = SMGlobalClass::head;
 
